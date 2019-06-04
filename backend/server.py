@@ -4,7 +4,6 @@ import shutil
 import subprocess
 import time
 
-from pathlib import Path
 from flask import Flask, request, abort, jsonify
 from flask_socketio import SocketIO, emit
 from http import HTTPStatus
@@ -35,7 +34,10 @@ Summary of endpoints:
     Get-- check if wifi is connected. Post-- given an SSID and password, set the wifi (rpi only)
       /api/wifi
 
-    Get if recorder is recording and if player is playing
+    Post-- reset the wifi settings to the ones in this repo's system/wpa_supplicant-wlan1.conf
+      /api/reset_settings
+
+    Get the current state of the server
       /api/state
 
 """
