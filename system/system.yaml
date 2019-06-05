@@ -10,7 +10,6 @@
           name: "{{ packages }}"
       vars:
         packages:
-          - git
           - dnsmasq
           - hostapd
           - nginx
@@ -24,10 +23,12 @@
         dest: /etc/udev/rules.d/72-wifi.rules
         remote_src: yes
 
+    # this will not overwrite your existing files
     - name: Copy wpa_supplicant files
       copy:
         src: "{{ source_dir }}/system/etc/wpa_supplicant/{{ item }}"
         dest: /etc/wpa_supplicant/
+        force: no
         remote_src: yes
       with_items:
         - 'wpa_supplicant-wlan1.conf'
