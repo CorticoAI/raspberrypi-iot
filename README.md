@@ -12,4 +12,6 @@ This has been tested on the Raspberry Pi 3 Model B+ with the Raspbian Stretch Li
 * [Install Ansible](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#latest-releases-via-apt-debian)
   * You may need to install dirmngr first to do this (`sudo apt-get -y install dirmngr`)
   * You may also need to use the url `hkp://keyserver.ubuntu.com:80` for the Ubuntu keyserver
-* Download this repository to your pi
+* Download this repository to your pi and make a note of the location (e.g. `/home/pi/raspberrypi-iot`)
+* Fill this location name in [`system/system.yaml`](system/system.yaml) on line 5
+* Run `sudo ansible-playbook system/system.yaml`

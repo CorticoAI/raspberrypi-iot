@@ -2,7 +2,7 @@
 - hosts: localhost
   become: true
   vars:
-    source_dir: "/workspace/raspberrypi-iot"
+    source_dir: "/home/pi/raspberrypi-iot" # replace with your source directory
 
   tasks:
     - name: Install base packages
@@ -82,17 +82,12 @@
         - hostapd
         - dnsmasq
 
-    # Configure nginx and restart
+    # Configure nginx and install the backend
     - name: Copy nginx configuration file
       copy:
         src: '{{ source_dir }}/system/etc/nginx/sites-available/default'
         dest: /etc/nginx/sites-available/default
         remote_src: yes
-
-    - name: Reload nginx
-      systemd:
-        state: restarted
-        name: nginx
 
     ## Install backend ##
     - name: Create a virtual environment for backend dependencies
@@ -107,12 +102,26 @@
         dest: /etc/systemd/system/rpi-iot-backend.service
         remote_src: yes 
 
+    - name: Replace source_dir variables in configuration files
+      replace:
+        dest: '{{ item }}'
+        regexp: '\{source_dir\}'
+        replace: '{{ source_dir }}'
+      with_items:
+        - '/etc/systemd/system/rpi-iot-backend.service'
+        - '/etc/nginx/sites-available/default'
+
     - name: Start and enable backend service
       systemd:
         state: restarted
         enabled: yes
         name: 'rpi-iot-backend'
         daemon_reload: yes
+
+    - name: Reload nginx
+      systemd:
+        state: restarted
+        name: nginx
 
     - name: Make sure hostapd is enabled at the end
       systemd:
