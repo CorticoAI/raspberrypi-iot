@@ -44,7 +44,7 @@ Summary of endpoints:
 
 # this is the path to where a wpa_supplicant file would be on an actual raspberry pi
 WIFI_FILE = "/etc/wpa_supplicant/wpa_supplicant-wlan1.conf"
-BACKUP_WIFI_FILE = '../system/wpa_supplicant-wlan1.conf'
+BACKUP_WIFI_FILE = '../system/etc/wpa_supplicant/wpa_supplicant-wlan1.conf'
 
 
 def current_state():

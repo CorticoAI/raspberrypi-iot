@@ -1,0 +1,2 @@
+ACTION=="add", SUBSYSTEM=="net", SUBSYSTEMS=="usb", ATTRS{idVendor}=="0bda", ATTRS{idProduct}=="8179", ATTRS{removable}=="removable", NAME="wlan1"
+ACTION=="add", SUBSYSTEM=="net", SUBSYSTEMS=="sdio", NAME="ap0"

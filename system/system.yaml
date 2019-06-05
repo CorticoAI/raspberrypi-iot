@@ -1,0 +1,121 @@
+---
+- hosts: localhost
+  become: true
+  vars:
+    source_dir: "/workspace/raspberrypi-iot"
+
+  tasks:
+    - name: Install base packages
+      apt:
+          name: "{{ packages }}"
+      vars:
+        packages:
+          - git
+          - dnsmasq
+          - hostapd
+          - nginx
+          - python3-pip          
+          - python3-venv
+
+    ## Wifi Stuff ##
+    - name: Configure udev
+      copy:
+        src: '{{ source_dir }}/system/etc/udev/rules.d/72-wifi.rules'
+        dest: /etc/udev/rules.d/72-wifi.rules
+        remote_src: yes
+
+    - name: Copy wpa_supplicant files
+      copy:
+        src: "{{ source_dir }}/system/etc/wpa_supplicant/{{ item }}"
+        dest: /etc/wpa_supplicant/
+        remote_src: yes
+      with_items:
+        - 'wpa_supplicant-wlan1.conf'
+        - 'wpa_supplicant.conf'
+
+    - name: Make wpa_supplicant files owned by pi
+      file:
+        path: '/etc/wpa_supplicant'
+        owner: pi
+        recurse: yes
+
+    # hostapd became masked, see https://github.com/raspberrypi/documentation/issues/1018
+    - name: Stop hostapd and dnsmasq for now
+      systemd:
+        state: stopped
+        name: "{{ item }}"
+        masked: 'no'
+      with_items:
+        - hostapd
+        - dnsmasq
+
+    - name: Copy configuration files into /etc
+      copy:
+        src: "{{ source_dir }}/system/etc/{{ item }}"
+        dest: /etc/
+        remote_src: yes
+      with_items:
+        - dhcpcd.conf
+        - dnsmasq.conf
+        - sysctl.conf
+        - iptables.ipv4.nat
+        - rc.local
+
+    - name: Configure hostapd
+      copy:
+        src: '{{ source_dir }}/system/etc/hostapd/hostapd.conf'
+        dest: /etc/hostapd/hostapd.conf
+        remote_src: yes
+
+    - name: Point system to hostapd configuration file
+      copy:
+        src: '{{ source_dir }}/system/etc/default/hostapd'
+        dest: /etc/default/hostapd
+        remote_src: yes
+
+    - name: Restart services
+      systemd:
+        name: "{{ item }}"
+        state: restarted
+      with_items:
+        - dhcpcd
+        - hostapd
+        - dnsmasq
+
+    # Configure nginx and restart
+    - name: Copy nginx configuration file
+      copy:
+        src: '{{ source_dir }}/system/etc/nginx/sites-available/default'
+        dest: /etc/nginx/sites-available/default
+        remote_src: yes
+
+    - name: Reload nginx
+      systemd:
+        state: restarted
+        name: nginx
+
+    ## Install backend ##
+    - name: Create a virtual environment for backend dependencies
+      pip:
+        requirements: '{{ source_dir }}/backend/requirements.txt'
+        virtualenv: '{{ source_dir }}/backend/venv'
+        virtualenv_command: /usr/bin/python3 -m venv
+
+    - name: Install backend service
+      copy:
+        src: '{{ source_dir }}/system/etc/systemd/system/rpi-iot-backend.service'
+        dest: /etc/systemd/system/rpi-iot-backend.service
+        remote_src: yes 
+
+    - name: Start and enable backend service
+      systemd:
+        state: restarted
+        enabled: yes
+        name: 'rpi-iot-backend'
+        daemon_reload: yes
+
+    - name: Make sure hostapd is enabled at the end
+      systemd:
+        name: hostapd
+        state: started
+        enabled: yes
