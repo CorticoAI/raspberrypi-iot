@@ -10,6 +10,7 @@ function App() {
   const [socketIsConnected, setSocketIsConnected] = React.useState(false);
   const [backendHasInternet, setBackendHasInternet] = React.useState(false);
   const [availableNetworks, setAvailableNetworks] = React.useState([]);
+  const [isConnecting, setIsConnecting] = React.useState(false);
   const [inputSsid, setInputSsid] = React.useState('');
   const [inputPsk, setInputPsk] = React.useState('');
   const [feedback, setFeedback] = React.useState('');
@@ -57,17 +58,19 @@ function App() {
 
   const handleConnect = evt => {
     evt.preventDefault();
-
+    setIsConnecting(true);
     api
       .connectToWifi(inputSsid, inputPsk)
       .then(res => {
         setFeedback(`Connected to ${inputSsid}.`);
+        setIsConnecting(false);
       })
       .catch(err => {
         console.log(err);
         setFeedback(
           `Unable to connect to ${inputSsid}. Please check the password and try again.`
         );
+        setIsConnecting(false);
       });
   };
 
@@ -99,6 +102,7 @@ function App() {
               />
               <button disabled={!inputSsid}>Connect WiFi</button>
             </form>
+            <div>{isConnecting && 'Connecting...'}</div>
             <div>{feedback}</div>
           </div>
         </div>
