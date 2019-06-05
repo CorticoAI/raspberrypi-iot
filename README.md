@@ -1,5 +1,11 @@
 # Control a Raspberry Pi with your phone
-This is a simple example of how to get a phone and raspberry pi talking to each other wirelessly using common web technologies. This example uses Flask and React, but either could be replaced with your preferred stack. 
+This is a simple example of how to get a phone and raspberry pi talking to each other wirelessly using common web technologies. This example uses Flask and React, but either could be replaced with your preferred stack. This uses:
+
+* Flask backend running via gunicorn that starts up on boot through systemd
+* React frontend hosted by nginx which is sent to the phone when it connects to the Pi
+
+The included example shows how to use the app (on something like a phone) to connect your pi to a WiFi network.
+![user interface](images/frontend.png)
 
 ## Requirements
 * Raspberry Pi (tested on a Raspberry Pi 3 Model B+)
@@ -13,7 +19,7 @@ This is a simple example of how to get a phone and raspberry pi talking to each 
 * Download the latest [raspbian image](https://www.raspberrypi.org/downloads/raspbian/) and flash it to an SD card
 * Insert your flashed SD card into your Raspberry Pi and connect it to a monitor and keyboard
 * Log in to the OS (default username: `pi` default password: `raspberry`)
-* Connect your pi to the internet 
+* [Connect your pi to the internet](https://www.raspberrypi.org/documentation/configuration/wireless/wireless-cli.md)
 * [Install Ansible](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#latest-releases-via-apt-debian)
   * You may need to install dirmngr first to do this (`sudo apt-get -y install dirmngr`)
   * You may also need to use the url `hkp://keyserver.ubuntu.com:80` for the Ubuntu keyserver
@@ -26,16 +32,18 @@ This is a simple example of how to get a phone and raspberry pi talking to each 
 * Run `sudo ansible-playbook system/system.yaml`. This will set up the WiFi access point as well as install the example frontend and backend services.
 * Restart the pi
 
-If everything worked, then you should be able to see the WiFi network `raspberrynet` from any device capable of looking for WiFi. You should be able to connect to it with the password `raspberrynet`. From your device, go to `raspberrynet.local:80` in a browser (or just `raspberrynet.local`) and you should see the frontend running on your pi! If your pi has ssh enabled, you should also be able to `ssh pi@raspberrynet.local`.
+If everything worked, then you should be able to see the WiFi network `raspberrynet` from any device capable of looking for WiFi. You should be able to connect to it with the password `raspberrynet`. From your connected device, go to `raspberrynet.local:80` in a browser (or just `raspberrynet.local`) and you should see the frontend running on your pi! If your pi has ssh enabled, you should also be able to `ssh pi@raspberrynet.local`.
 
-By default, the wifi connection and hostname of the pi are `raspberrynet`. This can be changed by replacing `raspberrynet` in the following files:
+By default, the wifi connection and hostname of the pi are `raspberrynet`. This can be changed by replacing `raspberrynet` in the following files, then running the Ansible again:
 * [system/etc/hosts](system/etc/hosts)
 * [system/etc/hostname](system/etc/hostname)
 * [system/etc/hostapd/hostapd.conf](system/etc/hostapd/hostapd.conf)
 
+Try connecting your pi to a different WiFi network, or taking it to a library. Because the internet connection is forwarded to the phone, you can now use your phone to get the pi past any pesky splash screens asking you to agree to terms. Congrats, you're controlling your Raspberry Pi with your phone!
+
 
 ### Configuring udev
-This is the trickiest part about getting this set up correctly. The pi does not by default persist wlan assignments, so if the pi is restarted, these can be switched. Because there are two WiFi chips (the one on the pi itself and a WiFi dongle via USB), we have to tell the pi which one will be the access point, and which one will be the outgoing WiFi. The on board WiFi chip is capable of being an access point, whereas not all WiFi dongles are, so we assign the access point to the on board chip. The WiFi dongle will then be responsible for the outgoing internet connection. 
+This is the trickiest part about getting this set up correctly. The pi does not by default persist wlan assignments, so if the pi is restarted, these might get switched. Because there are two WiFi chips (the one on the pi itself and a WiFi dongle via USB), we have to tell the pi which one will be the access point, and which one will be the outgoing WiFi. The on board WiFi chip of the Raspberry 3 is capable of being an access point, whereas not all WiFi dongles are, so we assign the access point to the on board chip. The WiFi dongle will then be responsible for the outgoing internet connection. 
 
 In this set up, we call the on board chip/access point `ap0` and our dongle/outgoing internet `wlan1`.
 
