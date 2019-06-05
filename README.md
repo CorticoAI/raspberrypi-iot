@@ -25,9 +25,9 @@ The included example shows how to use the app (on something like a phone) to con
   * You may also need to use the url `hkp://keyserver.ubuntu.com:80` for the Ubuntu keyserver
 * Download this repository to your pi and make a note of the location (e.g. `/home/pi/raspberrypi-iot`)
 * Fill this location name in [`system/system.yaml`](system/system.yaml) on line 5
-* Configure udev (see below)
-* Reconnect to your WiFi now that udev has changed some of the wlan assignments
-  * The outgoing wifi should now be on `wlan1`. To set its WiFi settings, copy your `/etc/wpa_supplicant/wpa_supplicant.conf` (which should have your WiFi settings) to `/etc/wpa_supplicant/wpa_supplicant-wlan1.conf`. Then run `wpa_cli -i wlan1 reconfigure`. You should have internet again now.
+* Configure udev (see below) and restart your pi
+* You may need to reconnect to your WiFi now that udev has changed some of the wlan assignments
+  * There should now be a `wlan1` and `ap0`. To set `wlan1`'s WiFi settings, copy your `/etc/wpa_supplicant/wpa_supplicant.conf` (which should have your WiFi settings) to `/etc/wpa_supplicant/wpa_supplicant-wlan1.conf`. Then run `wpa_cli -i wlan1 reconfigure`. You should have internet again now.
   * Note: `raspi-config` cannot be used to change the WiFi settings anymore since the wlan assignments have changed
 * Run `sudo ansible-playbook system/system.yaml`. This will set up the WiFi access point as well as install the example frontend and backend services.
 * Restart the pi
