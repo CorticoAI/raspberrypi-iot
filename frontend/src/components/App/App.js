@@ -98,8 +98,8 @@ function App() {
                 onChange={handlePskChange}
               />
               <button disabled={!inputSsid}>Connect WiFi</button>
-              <div>{feedback}</div>
             </form>
+            <div>{feedback}</div>
           </div>
         </div>
       </header>
