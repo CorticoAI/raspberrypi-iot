@@ -16,13 +16,7 @@
           - python3-pip          
           - python3-venv
 
-    ## Wifi Stuff ##
-    - name: Configure udev
-      copy:
-        src: '{{ source_dir }}/system/etc/udev/rules.d/72-wifi.rules'
-        dest: /etc/udev/rules.d/72-wifi.rules
-        remote_src: yes
-
+    ## Wifi access point configuration ##
     # this will not overwrite your existing files
     - name: Copy wpa_supplicant files
       copy:
@@ -61,6 +55,8 @@
         - sysctl.conf
         - iptables.ipv4.nat
         - rc.local
+        - hosts
+        - hostname
 
     - name: Configure hostapd
       copy:
@@ -83,14 +79,13 @@
         - hostapd
         - dnsmasq
 
-    # Configure nginx and install the backend
+    ## Install frontend and backend ##
     - name: Copy nginx configuration file
       copy:
         src: '{{ source_dir }}/system/etc/nginx/sites-available/default'
         dest: /etc/nginx/sites-available/default
         remote_src: yes
 
-    ## Install backend ##
     - name: Create a virtual environment for backend dependencies
       pip:
         requirements: '{{ source_dir }}/backend/requirements.txt'

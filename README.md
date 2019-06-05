@@ -5,12 +5,11 @@ This is a simple example of how to get a phone and raspberry pi talking to each 
 * Raspberry Pi (tested on a Raspberry Pi 3 Model B+)
 * SD card with Raspbian (tested on Stretch Lite 04-08 image)
 * A WiFi dongle (tested on [this one](https://www.adafruit.com/product/2810))
-* Monitor/keyboard, or an SSH connection
 * A phone that can connect to WiFi (tested on iPhones 5+)
+* Monitor/keyboard, or an SSH connection
 
 ## Set up
 
-### With Ansible
 * Download the latest [raspbian image](https://www.raspberrypi.org/downloads/raspbian/) and flash it to an SD card
 * Insert your flashed SD card into your Raspberry Pi and connect it to a monitor and keyboard
 * Log in to the OS (default username: `pi` default password: `raspberry`)
@@ -23,7 +22,16 @@ This is a simple example of how to get a phone and raspberry pi talking to each 
 * Configure udev (see below)
 * Reconnect to your WiFi now that udev has changed some of the wlan assignments
   * The outgoing wifi should now be on `wlan1`. To set its WiFi settings, copy your `/etc/wpa_supplicant/wpa_supplicant.conf` (which should have your WiFi settings) to `/etc/wpa_supplicant/wpa_supplicant-wlan1.conf`. Then run `wpa_cli -i wlan1 reconfigure`. You should have internet again now.
-* Run `sudo ansible-playbook system/system.yaml`
+  * Note: `raspi-config` cannot be used to change the WiFi settings anymore since the wlan assignments have changed
+* Run `sudo ansible-playbook system/system.yaml`. This will set up the WiFi access point as well as install the example frontend and backend services.
+* Restart the pi
+
+If everything worked, then you should be able to see the WiFi network `raspberrynet` from any device capable of looking for WiFi. You should be able to connect to it with the password `raspberrynet`. From your device, go to `raspberrynet.local:80` in a browser (or just `raspberrynet.local`) and you should see the frontend running on your pi! If your pi has ssh enabled, you should also be able to `ssh pi@raspberrynet.local`.
+
+By default, the wifi connection and hostname of the pi are `raspberrynet`. This can be changed by replacing `raspberrynet` in the following files:
+* [system/etc/hosts](system/etc/hosts)
+* [system/etc/hostname](system/etc/hostname)
+* [system/etc/hostapd/hostapd.conf](system/etc/hostapd/hostapd.conf)
 
 
 ### Configuring udev
