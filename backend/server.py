@@ -1,6 +1,5 @@
 import logging
 import os
-import shutil
 import subprocess
 import time
 
@@ -34,9 +33,6 @@ Summary of endpoints:
     Get-- check if wifi is connected. Post-- given an SSID and password, set the wifi (rpi only)
       /api/wifi
 
-    Post-- reset the wifi settings to the ones in this repo's system/wpa_supplicant-wlan1.conf
-      /api/reset_settings
-
     Get the current state of the server
       /api/state
 
@@ -44,12 +40,11 @@ Summary of endpoints:
 
 # this is the path to where a wpa_supplicant file would be on an actual raspberry pi
 WIFI_FILE = "/etc/wpa_supplicant/wpa_supplicant-wlan1.conf"
-BACKUP_WIFI_FILE = '../system/etc/wpa_supplicant/wpa_supplicant-wlan1.conf'
 
 
 def current_state():
     return {
-        'state': 'ok!'
+        'wifi_connected': internet_available(),
     }
 
 
@@ -147,21 +142,6 @@ def set_wifi():
     abort(HTTPStatus.BAD_REQUEST)
 
 
-@app.route('/api/reset_settings/', methods=['POST'])
-def reset_settings():
-    logging.info(
-        'Resetting the wpa_supplicant file to local copy in the repository')
-    if os.environ.get('PYTHON_ENV') != 'dev':
-        # back up the file in case we want to look at it later
-        shutil.copyfile(WIFI_FILE, "{0}.bak".format(WIFI_FILE))
-        shutil.copyfile(BACKUP_WIFI_FILE, WIFI_FILE)
-
-        # restart wifi
-        subprocess.call(['wpa_cli', '-i', 'wlan1', 'reconfigure'])
-
-    return jsonify(True)
-
-
 @app.route('/api/state/')
 def get_state():
     return jsonify(current_state())
@@ -194,7 +174,7 @@ def main():
 
     init_app()
 
-    logging.info("Initializing hearth-backend websocket...")
+    logging.info("Initializing websocket...")
     socketio.run(app, host='0.0.0.0')
 
 
