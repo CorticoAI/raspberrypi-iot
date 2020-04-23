@@ -81,10 +81,7 @@
 
     ## Install frontend and backend ##
     - name: Copy nginx configuration file
-      copy:
-        src: '{{ source_dir }}/system/etc/nginx/sites-available/default'
-        dest: /etc/nginx/sites-available/default
-        remote_src: yes
+      template: src={{ source_dir }}/system/etc/nginx/sites-available/default.j2 dest=/etc/nginx/sites-available/default
 
     - name: Create a virtual environment for backend dependencies
       pip:
