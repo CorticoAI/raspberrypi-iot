@@ -47,7 +47,7 @@ server {
 		# First attempt to serve request as file, then
 		# as directory, then fall back to displaying a 404.
 		# this gets replaced by Ansible with the configurable source directory
-		root {source_dir}/frontend/build;
+		root {{ source_dir }}/frontend/build;
 		try_files $uri $uri/ =404;
 
 		# kill cache

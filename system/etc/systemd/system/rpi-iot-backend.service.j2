@@ -1,0 +1,11 @@
+[Unit]
+Description=Raspberry pi example backend gunicorn web service
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory={source_dir}/backend
+ExecStart={{ source_dir }}/backend/venv/bin/gunicorn -w 1 --threads 2 --worker-class eventlet -b 127.0.0.1:5000 "server:init_app()"
+
+[Install]
+WantedBy=multi-user.target
